@@ -1,31 +1,3 @@
-# Copyright (C) 2009-2014 Wander Lairson Costa
-#
-# The following terms apply to all files associated
-# with the software unless explicitly disclaimed in individual files.
-#
-# The authors hereby grant permission to use, copy, modify, distribute,
-# and license this software and its documentation for any purpose, provided
-# that existing copyright notices are retained in all copies and that this
-# notice is included verbatim in any distributions. No written agreement,
-# license, or royalty fee is required for any of the authorized uses.
-# Modifications to this software may be copyrighted by their authors
-# and need not follow the licensing terms described here, provided that
-# the new terms are clearly indicated on the first page of each file where
-# they apply.
-#
-# IN NO EVENT SHALL THE AUTHORS OR DISTRIBUTORS BE LIABLE TO ANY PARTY
-# FOR DIRECT, INDIRECT, SPECIAL, INCIDENTAL, OR CONSEQUENTIAL DAMAGES
-# ARISING OUT OF THE USE OF THIS SOFTWARE, ITS DOCUMENTATION, OR ANY
-# DERIVATIVES THEREOF, EVEN IF THE AUTHORS HAVE BEEN ADVISED OF THE
-# POSSIBILITY OF SUCH DAMAGE.
-#
-# THE AUTHORS AND DISTRIBUTORS SPECIFICALLY DISCLAIM ANY WARRANTIES,
-# INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY,
-# FITNESS FOR A PARTICULAR PURPOSE, AND NON-INFRINGEMENT.  THIS SOFTWARE
-# IS PROVIDED ON AN "AS IS" BASIS, AND THE AUTHORS AND DISTRIBUTORS HAVE
-# NO OBLIGATION TO PROVIDE MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR
-# MODIFICATIONS.
-
 r"""usb.core - Core USB features.
 
 This module exports:
@@ -147,9 +119,6 @@ class _ResourceManager(object):
         self.managed_open()
         self.backend.set_configuration(self.handle, cfg.bConfigurationValue)
 
-        # cache the index instead of the object to avoid cyclic references
-        # of the device and Configuration (Device tracks the _ResourceManager,
-        # which tracks the Configuration, which tracks the Device)
         self._active_cfg_index = cfg.index
 
         self._ep_info.clear()
@@ -205,8 +174,6 @@ class _ResourceManager(object):
 
     @synchronized
     def setup_request(self, device, endpoint):
-        # we need the endpoint address, but the "endpoint" parameter
-        # can be either the a Endpoint object or the endpoint address itself
         if isinstance(endpoint, Endpoint):
             endpoint_address = endpoint.bEndpointAddress
         else:
@@ -216,7 +183,6 @@ class _ResourceManager(object):
         self.managed_claim_interface(device, intf)
         return (intf, ep)
 
-    # Find the interface and endpoint objects which endpoint address belongs to
     @synchronized
     def get_interface_and_endpoint(self, device, endpoint_address):
         try:
@@ -251,8 +217,6 @@ class _ResourceManager(object):
             try:
                 self.managed_release_interface(device, i)
             except USBError:
-                # Ignore errors when releasing the interfaces
-                # When the device is disconnected, the call may fail
                 pass
 
     @synchronized
@@ -977,7 +941,7 @@ class Device(_objfinalizer.AutoFinalizedObject):
 
         if isinstance(size_or_buffer, array.array):
             buff = size_or_buffer
-        else: # here we consider it is a integer
+        else:
             buff = util.create_buffer(size_or_buffer)
 
         ret = fn(
@@ -1024,8 +988,6 @@ class Device(_objfinalizer.AutoFinalizedObject):
 
         self._ctx.managed_open()
 
-        # Thanks to Johannes Stezenbach to point me out that we need to
-        # claim the recipient interface
         recipient = bmRequestType & 3
         rqtype = bmRequestType & (3 << 5)
         if recipient == util.CTRL_RECIPIENT_INTERFACE \

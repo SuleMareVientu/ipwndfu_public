@@ -1,5 +1,6 @@
-import sys, time
-import usb # pyusb: use 'pip install pyusb' to install this module
+import sys
+import time
+import usb
 import usb.backend.libusb1
 import libusbfinder
 

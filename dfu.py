@@ -1,11 +1,12 @@
-import sys, time
-import usb # pyusb: use 'pip install pyusb' to install this module
+import sys 
+import time
+import usb
 import usb.backend.libusb1
 import libusbfinder
 
 MAX_PACKET_SIZE = 0x800
 
-def acquire_device(timeout=5.0, match=None, fatal=True):
+def acquire_device(timeout=10.0, match=None, fatal=True):
   backend = usb.backend.libusb1.get_backend(find_library=lambda x:libusbfinder.libusb1_path())
   #print 'Acquiring device handle.'
   # Keep retrying for up to timeout seconds if device is not found.
@@ -60,7 +61,6 @@ def get_data(device, amount):
     return data
 
 def request_image_validation(device):
-    #print 'Requesting image validation.'
     assert device.ctrl_transfer(0x21, 1, 0, 0, '', 1000) == 0
     device.ctrl_transfer(0xA1, 3, 0, 0, 6, 1000)
     device.ctrl_transfer(0xA1, 3, 0, 0, 6, 1000)

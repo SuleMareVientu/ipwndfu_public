@@ -1,31 +1,3 @@
-# Copyright (C) 2009-2014 Wander Lairson Costa
-#
-# The following terms apply to all files associated
-# with the software unless explicitly disclaimed in individual files.
-#
-# The authors hereby grant permission to use, copy, modify, distribute,
-# and license this software and its documentation for any purpose, provided
-# that existing copyright notices are retained in all copies and that this
-# notice is included verbatim in any distributions. No written agreement,
-# license, or royalty fee is required for any of the authorized uses.
-# Modifications to this software may be copyrighted by their authors
-# and need not follow the licensing terms described here, provided that
-# the new terms are clearly indicated on the first page of each file where
-# they apply.
-#
-# IN NO EVENT SHALL THE AUTHORS OR DISTRIBUTORS BE LIABLE TO ANY PARTY
-# FOR DIRECT, INDIRECT, SPECIAL, INCIDENTAL, OR CONSEQUENTIAL DAMAGES
-# ARISING OUT OF THE USE OF THIS SOFTWARE, ITS DOCUMENTATION, OR ANY
-# DERIVATIVES THEREOF, EVEN IF THE AUTHORS HAVE BEEN ADVISED OF THE
-# POSSIBILITY OF SUCH DAMAGE.
-#
-# THE AUTHORS AND DISTRIBUTORS SPECIFICALLY DISCLAIM ANY WARRANTIES,
-# INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY,
-# FITNESS FOR A PARTICULAR PURPOSE, AND NON-INFRINGEMENT.  THIS SOFTWARE
-# IS PROVIDED ON AN "AS IS" BASIS, AND THE AUTHORS AND DISTRIBUTORS HAVE
-# NO OBLIGATION TO PROVIDE MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR
-# MODIFICATIONS.
-
 from ctypes import *
 import os
 import usb.backend
@@ -43,8 +15,6 @@ __all__ = ['get_backend']
 
 _logger = logging.getLogger('usb.backend.libusb0')
 
-# usb.h
-
 if sys.platform.find('bsd') != -1 or sys.platform.find('mac') != -1 or \
         sys.platform.find('darwin') != -1 or sys.platform.find('sunos5') != -1:
     _PATH_MAX = 1024
@@ -53,17 +23,11 @@ elif sys.platform == 'win32' or sys.platform == 'cygwin':
 else:
     _PATH_MAX = os.pathconf('.', 'PC_PATH_MAX')
 
-# libusb-win32 makes all structures packed, while
-# default libusb only does for some structures
-# _PackPolicy defines the structure packing according
-# to the platform.
 class _PackPolicy(object):
     pass
 
 if sys.platform == 'win32' or sys.platform == 'cygwin':
     _PackPolicy._pack_ = 1
-
-# Data structures
 
 class _usb_descriptor_header(Structure):
     _pack_ = 1
@@ -196,18 +160,12 @@ def _load_library(find_library=None):
     )
 
 def _setup_prototypes(lib):
-    # usb_dev_handle *usb_open(struct usb_device *dev);
     lib.usb_open.argtypes = [POINTER(_usb_device)]
     lib.usb_open.restype = _usb_dev_handle
 
     # int usb_close(usb_dev_handle *dev);
     lib.usb_close.argtypes = [_usb_dev_handle]
 
-    # int usb_get_string(usb_dev_handle *dev,
-    #                    int index,
-    #                    int langid,
-    #                    char *buf,
-    #                    size_t buflen);
     lib.usb_get_string.argtypes = [
             _usb_dev_handle,
             c_int,
@@ -216,10 +174,6 @@ def _setup_prototypes(lib):
             c_size_t
         ]
 
-    # int usb_get_string_simple(usb_dev_handle *dev,
-    #                           int index,
-    #                           char *buf,
-    #                           size_t buflen);
     lib.usb_get_string_simple.argtypes = [
             _usb_dev_handle,
             c_int,
@@ -227,12 +181,6 @@ def _setup_prototypes(lib):
             c_size_t
         ]
 
-    # int usb_get_descriptor_by_endpoint(usb_dev_handle *udev,
-    #                                    int ep,
-    #                                    unsigned char type,
-    #                                    unsigned char index,
-    #                                    void *buf,
-    #                                    int size);
     lib.usb_get_descriptor_by_endpoint.argtypes = [
                                 _usb_dev_handle,
                                 c_int,
@@ -242,11 +190,6 @@ def _setup_prototypes(lib):
                                 c_int
                             ]
 
-    # int usb_get_descriptor(usb_dev_handle *udev,
-    #                        unsigned char type,
-    #                        unsigned char index,
-    #                        void *buf,
-    #                        int size);
     lib.usb_get_descriptor.argtypes = [
                     _usb_dev_handle,
                     c_ubyte,
@@ -255,11 +198,6 @@ def _setup_prototypes(lib):
                     c_int
                 ]
 
-    # int usb_bulk_write(usb_dev_handle *dev,
-    #                    int ep,
-    #                    const char *bytes,
-    #                    int size,
-    #                    int timeout);
     lib.usb_bulk_write.argtypes = [
             _usb_dev_handle,
             c_int,
@@ -268,11 +206,6 @@ def _setup_prototypes(lib):
             c_int
         ]
 
-    # int usb_bulk_read(usb_dev_handle *dev,
-    #                   int ep,
-    #                   char *bytes,
-    #                   int size,
-    #                   int timeout);
     lib.usb_bulk_read.argtypes = [
             _usb_dev_handle,
             c_int,
@@ -281,11 +214,6 @@ def _setup_prototypes(lib):
             c_int
         ]
 
-    # int usb_interrupt_write(usb_dev_handle *dev,
-    #                         int ep,
-    #                         const char *bytes,
-    #                         int size,
-    #                         int timeout);
     lib.usb_interrupt_write.argtypes = [
             _usb_dev_handle,
             c_int,
@@ -294,11 +222,6 @@ def _setup_prototypes(lib):
             c_int
         ]
 
-    # int usb_interrupt_read(usb_dev_handle *dev,
-    #                        int ep,
-    #                        char *bytes,
-    #                        int size,
-    #                        int timeout);
     lib.usb_interrupt_read.argtypes = [
             _usb_dev_handle,
             c_int,
@@ -307,14 +230,6 @@ def _setup_prototypes(lib):
             c_int
         ]
 
-    # int usb_control_msg(usb_dev_handle *dev,
-    #                     int requesttype,
-    #                     int request,
-    #                     int value,
-    #                     int index,
-    #                     char *bytes,
-    #                     int size,
-    #                     int timeout);
     lib.usb_control_msg.argtypes = [
             _usb_dev_handle,
             c_int,
@@ -326,88 +241,59 @@ def _setup_prototypes(lib):
             c_int
         ]
 
-    # int usb_set_configuration(usb_dev_handle *dev, int configuration);
     lib.usb_set_configuration.argtypes = [_usb_dev_handle, c_int]
 
-    # int usb_claim_interface(usb_dev_handle *dev, int interface);
     lib.usb_claim_interface.argtypes = [_usb_dev_handle, c_int]
 
-    # int usb_release_interface(usb_dev_handle *dev, int interface);
     lib.usb_release_interface.argtypes = [_usb_dev_handle, c_int]
 
-    # int usb_set_altinterface(usb_dev_handle *dev, int alternate);
     lib.usb_set_altinterface.argtypes = [_usb_dev_handle, c_int]
 
-    # int usb_resetep(usb_dev_handle *dev, unsigned int ep);
     lib.usb_resetep.argtypes = [_usb_dev_handle, c_int]
 
-    # int usb_clear_halt(usb_dev_handle *dev, unsigned int ep);
     lib.usb_clear_halt.argtypes = [_usb_dev_handle, c_int]
 
-    # int usb_reset(usb_dev_handle *dev);
     lib.usb_reset.argtypes = [_usb_dev_handle]
 
-    # char *usb_strerror(void);
     lib.usb_strerror.argtypes = []
+
     lib.usb_strerror.restype = c_char_p
 
-    # void usb_set_debug(int level);
     lib.usb_set_debug.argtypes = [c_int]
 
-    # struct usb_device *usb_device(usb_dev_handle *dev);
     lib.usb_device.argtypes = [_usb_dev_handle]
+
     lib.usb_device.restype = POINTER(_usb_device)
 
-    # struct usb_bus *usb_get_busses(void);
     lib.usb_get_busses.restype = POINTER(_usb_bus)
 
-    # linux only
-
-    # int usb_detach_kernel_driver_np(usb_dev_handle *dev, int interface);
     if hasattr(lib, 'usb_detach_kernel_driver_np'):
         lib.usb_detach_kernel_driver_np.argtypes = [_usb_dev_handle, c_int]
 
-    # libusb-win32 only
-
-    # int usb_isochronous_setup_async(usb_dev_handle *dev,
-    #                                 void **context,
-    #                                 unsigned char ep,
-    #                                 int pktsize)
     if hasattr(lib, 'usb_isochronous_setup_async'):
         lib.usb_isochronous_setup_async.argtypes = \
             [_usb_dev_handle, POINTER(c_void_p), c_uint8, c_int]
 
-    # int usb_bulk_setup_async(usb_dev_handle *dev,
-    #                          void **context,
-    #                          unsigned char ep)
     if hasattr(lib, 'usb_bulk_setup_async'):
         lib.usb_bulk_setup_async.argtypes = \
             [_usb_dev_handle, POINTER(c_void_p), c_uint8]
 
-    # int usb_interrupt_setup_async(usb_dev_handle *dev,
-    #                               void **context,
-    #                               unsigned char ep)
     if hasattr(lib, 'usb_interrupt_setup_async'):
         lib.usb_interrupt_setup_async.argtypes = \
             [_usb_dev_handle, POINTER(c_void_p), c_uint8]
 
-    # int usb_submit_async(void *context, char *bytes, int size)
     if hasattr(lib, 'usb_submit_async'):
         lib.usb_submit_async.argtypes = [c_void_p, c_char_p, c_int]
 
-    # int usb_reap_async(void *context, int timeout)
     if hasattr(lib, 'usb_reap_async'):
         lib.usb_reap_async.argtypes = [c_void_p, c_int]
 
-    # int usb_reap_async_nocancel(void *context, int timeout)
     if hasattr(lib, 'usb_reap_async_nocancel'):
         lib.usb_reap_async_nocancel.argtypes = [c_void_p, c_int]
 
-    # int usb_cancel_async(void *context)
     if hasattr(lib, 'usb_cancel_async'):
         lib.usb_cancel_async.argtypes = [c_void_p]
 
-    # int usb_free_async(void **context)
     if hasattr(lib, 'usb_free_async'):
         lib.usb_free_async.argtypes = [POINTER(c_void_p)]
 
@@ -420,10 +306,6 @@ def _check(ret):
 
         if ret < 0:
             errmsg = _lib.usb_strerror()
-            # No error means that we need to get the error
-            # message from the return code
-            # Thanks to Nicholas Wheeler to point out the problem...
-            # Also see issue #2860940
             if errmsg.lower() == 'no error':
                 errmsg = os.strerror(-ret)
         else:
@@ -433,7 +315,6 @@ def _check(ret):
 def _has_iso_transfer():
     return hasattr(_lib, 'usb_isochronous_setup_async')
 
-# implementation of libusb 0.1.x backend
 class _LibUSB(usb.backend.IBackend):
     @methodtrace(_logger)
     def enumerate_devices(self):
@@ -670,7 +551,6 @@ def get_backend(find_library=None):
             _lib.usb_init()
         return _LibUSB()
     except usb.libloader.LibraryException:
-        # exception already logged (if any)
         _logger.error('Error loading libusb 0.1 backend', exc_info=False)
         return None
     except Exception:
